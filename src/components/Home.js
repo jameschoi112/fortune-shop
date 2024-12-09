@@ -74,9 +74,18 @@ const Banner = ({ banners }) => {
     return () => clearInterval(timer);
   }, [banners.length]);
 
+  const handleBannerClick = () => {
+    if (currentBanner === 2) { // 세 번째 배너일 때
+      window.open('https://sobbangjaebbang-weahter.netlify.app/', '_blank');
+    }
+  };
+
   return (
-    <div className="glassmorphism rounded-2xl overflow-hidden">
-      <div className="relative w-full h-48">
+    <div className="glassmorphism rounded-2xl overflow-hidden relative">
+      <div
+        className="relative w-full h-36 cursor-pointer"
+        onClick={handleBannerClick}
+      >
         {banners.map((banner, index) => (
           <motion.div
             key={index}
@@ -86,22 +95,62 @@ const Banner = ({ banners }) => {
               x: currentBanner === index ? 0 : 20
             }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0 flex items-center justify-center p-6"
+            className="absolute inset-0"
           >
-            <div className="text-center">
-              <motion.span
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                className="inline-block text-4xl mb-4"
-              >
-                ✨
-              </motion.span>
-              <h3 className="text-3xl font-bold text-white mb-2">{banner.title}</h3>
-              <p className="text-purple-200 text-lg">{banner.description}</p>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url('/assets/banner_${index + 1}.jpg')`,
+                opacity: 0.4
+              }}
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent" />
+
+            <div className="relative z-10 h-full flex items-center p-6">
+              <div className="text-left">
+                <motion.span
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  className="inline-block text-4xl mb-2"
+                >
+                  ✨
+                </motion.span>
+                <h3 className="text-2xl font-bold text-white mb-1">{banner.title}</h3>
+                <p className="text-purple-200">{banner.description}</p>
+              </div>
             </div>
           </motion.div>
         ))}
       </div>
+
+      <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2">
+        {banners.map((_, index) => (
+          <button
+            key={index}
+            onClick={(e) => {
+              e.stopPropagation(); // 배너 클릭 이벤트와 겹치지 않도록
+              setCurrentBanner(index);
+            }}
+            className={`w-2 h-2 rounded-full transition-all duration-300
+              ${currentBanner === index
+                ? 'bg-fuchsia-400 w-4'
+                : 'bg-white/50 hover:bg-white/70'}`}
+          />
+        ))}
+      </div>
+
+      {currentBanner === 2 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute top-3 right-3"
+        >
+          <span className="text-sm text-white/70">
+            클릭하여 이동하기 →
+          </span>
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -150,12 +199,12 @@ const Home = () => {
       description: "당신만의 특별한 운세를 확인해보세요"
     },
     {
-      title: "2024년 운세",
-      description: "새해를 맞아 특별한 운세를 준비했습니다"
+      title: "AI 점쟁이",
+      description: "점쟁이 할머니에게 고민을 털어보세요"
     },
     {
-      title: "특별한 이벤트",
-      description: "매일 찾아오는 행운의 시간"
+      title: "소빵재빵 날씨",
+      description: "AI가 알려주는 날씨를 확인해보세요"
     }
   ];
 
