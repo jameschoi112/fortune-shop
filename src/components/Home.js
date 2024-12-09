@@ -116,28 +116,28 @@ const Home = () => {
   const menuItems = [
     {
       title: "오늘의 운세",
-      description: "당신의 하루를 비춰줄 운세를 확인해보세요",
+      description: "오늘은 어떤 일들이 펼쳐질까요?",
       icon: Sparkles,
       route: "/fortune",
       stats: { today: 128, total: 1234 }
     },
     {
-      title: "연애운",
-      description: "당신의 사랑이 궁금하다면?",
+      title: "도화살 테스트",
+      description: "당신에게는 어떤 도화살이 들어 있을까요?",
       icon: Heart,
       comingSoon: true,
       stats: { today: 56, total: 789 }
     },
     {
-      title: "재물운",
+      title: "사주팔자",
       description: "금전과 재물의 기운을 알아보세요",
       icon: Coins,
       comingSoon: true,
       stats: { today: 92, total: 945 }
     },
     {
-      title: "학업운",
-      description: "학업과 진로의 길을 밝혀드립니다",
+      title: "AI 점쟁이",
+      description: "무당 할머니에게 고민을 풀어보세요",
       icon: GraduationCap,
       comingSoon: true,
       stats: { today: 73, total: 867 }
