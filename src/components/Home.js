@@ -1,35 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Heart, Coins, GraduationCap, Menu, Clover } from 'lucide-react';
-
-const MenuBar = () => (
-  <div className="fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md">
-    <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-      <div className="flex items-center space-x-2">
-        <Clover className="w-6 h-6 text-fuchsia-400" />
-        <span className="text-xl font-bold text-white">행운상점</span>
-      </div>
-      <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
-        <Menu className="w-6 h-6 text-purple-300" />
-      </button>
-    </div>
-  </div>
-);
-
-const Modal = ({ isOpen, onClose, children }) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <div className="glassmorphism rounded-2xl p-6 max-w-sm w-full relative">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
+import { Sparkles, Heart, Coins, GraduationCap } from 'lucide-react';
+import MenuBar from './shared/MenuBar';
+import Sidebar from './shared/Sidebar';
+import Modal from './shared/Modal';
 
 const FortuneCard = ({ title, description, icon: Icon, onClick, stats }) => {
   return (
@@ -75,7 +49,7 @@ const Banner = ({ banners }) => {
   }, [banners.length]);
 
   const handleBannerClick = () => {
-    if (currentBanner === 2) { // 세 번째 배너일 때
+    if (currentBanner === 2) {
       window.open('https://sobbangjaebbang-weahter.netlify.app/', '_blank');
     }
   };
@@ -104,9 +78,7 @@ const Banner = ({ banners }) => {
                 opacity: 0.4
               }}
             />
-
             <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent" />
-
             <div className="relative z-10 h-full flex items-center p-6">
               <div className="text-left">
                 <motion.span
@@ -129,7 +101,7 @@ const Banner = ({ banners }) => {
           <button
             key={index}
             onClick={(e) => {
-              e.stopPropagation(); // 배너 클릭 이벤트와 겹치지 않도록
+              e.stopPropagation();
               setCurrentBanner(index);
             }}
             className={`w-2 h-2 rounded-full transition-all duration-300
@@ -157,6 +129,7 @@ const Banner = ({ banners }) => {
 
 const Home = () => {
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleNavigate = (path) => {
     window.location.href = path;
@@ -199,18 +172,23 @@ const Home = () => {
       description: "당신만의 특별한 운세를 확인해보세요"
     },
     {
-      title: "AI 점쟁이",
-      description: "점쟁이 할머니에게 고민을 털어보세요"
+      title: "2024년 운세",
+      description: "새해를 맞아 특별한 운세를 준비했습니다"
     },
     {
-      title: "소빵재빵 날씨",
-      description: "AI가 알려주는 날씨를 확인해보세요"
+      title: "특별한 이벤트",
+      description: "매일 찾아오는 행운의 시간"
     }
   ];
 
   return (
     <div className="min-h-screen pb-8">
-      <MenuBar />
+      <MenuBar onMenuClick={() => setIsSidebarOpen(true)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+
       <div className="container mx-auto px-4 pt-20">
         <motion.div
           initial={{ y: -20, opacity: 0 }}
@@ -240,10 +218,7 @@ const Home = () => {
         </div>
       </div>
 
-      <Modal
-        isOpen={showComingSoon}
-        onClose={() => setShowComingSoon(false)}
-      >
+      <Modal isOpen={showComingSoon} onClose={() => setShowComingSoon(false)}>
         <h2 className="text-2xl font-bold text-white mb-4">서비스 준비중</h2>
         <p className="text-purple-200 mb-6">
           더 나은 서비스로 곧 찾아뵙겠습니다! 💫
