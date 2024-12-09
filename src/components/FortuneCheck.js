@@ -1,25 +1,69 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Dialog } from '@headlessui/react';
 import { Calendar, User, ArrowLeft } from 'lucide-react';
+
+const FortuneCookie = ({ onClick, isSelected }) => (
+  <motion.div
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+    onClick={onClick}
+    className="relative cursor-pointer"
+  >
+    <motion.div
+      animate={{
+        y: [0, -10, 0],
+        rotate: [0, 5, 0]
+      }}
+      transition={{
+        duration: 3,
+        repeat: Infinity,
+        ease: "easeInOut",
+        times: [0, 0.5, 1]
+      }}
+      className="w-24 h-24 relative"
+    >
+      <img
+        src="/assets/fortune_cookie.png"
+        alt="Fortune Cookie"
+        className="w-full h-full object-contain"
+      />
+      <motion.div
+        animate={{
+          opacity: [0.5, 1, 0.5],
+          scale: [1, 1.1, 1]
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        className={`absolute inset-0 rounded-full ${
+          isSelected ? 'ring-4 ring-fuchsia-400' : ''
+        }`}
+        style={{
+          boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)"
+        }}
+      />
+    </motion.div>
+  </motion.div>
+);
 
 const FortuneCheck = () => {
   const navigate = useNavigate();
-  const [showIntro, setShowIntro] = useState(true);
   const [formData, setFormData] = useState({
     gender: '',
     calendar: 'solar',
     name: '',
     birthdate: ''
   });
-  const [showCards, setShowCards] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [showCookies, setShowCookies] = useState(false);
+  const [selectedCookie, setSelectedCookie] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setShowCards(true);
+    setShowCookies(true);
   };
 
   return (
@@ -35,50 +79,7 @@ const FortuneCheck = () => {
         </motion.button>
       </div>
 
-      <Dialog
-        open={showIntro}
-        onClose={() => setShowIntro(false)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="glassmorphism rounded-2xl p-6 max-w-md w-full">
-            <button
-              onClick={() => setShowIntro(false)}
-              className="absolute top-4 right-4 text-white/60 hover:text-white"
-            >
-              ✕
-            </button>
-            <div className="flex flex-col items-center text-center">
-
-              <div className="w-64 h-64 mb-4 overflow-hidden rounded-lg">
-                <img
-                  src="/assets/popup_image.jpg"
-                  alt="Fortune Guide"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <p className="text-purple-200 mb-6">
-                운세 확인을 위해 정보를 입력해주세요.<br/>
-                당신만의 특별한 운세를 확인하실 수 있습니다.
-              </p>
-              <label className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5 rounded border-purple-300 text-purple-600 focus:ring-purple-500"
-                  onChange={() => {
-                    localStorage.setItem('hideFortuneIntro', 'true');
-                    setShowIntro(false);
-                  }}
-                />
-                <span className="text-purple-200">다시 보지 않기</span>
-              </label>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
-
-      {!showCards ? (
+      <div className="relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -170,120 +171,90 @@ const FortuneCheck = () => {
             </button>
           </form>
         </motion.div>
-      ) : (
-        <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className="fixed inset-0 flex flex-col items-center pt-20 overflow-hidden"
-  >
-    <motion.p
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="text-purple-200 text-xl mb-20 animate-bounce"
-    >
-      카드를 위로 드래그하여 뽑아주세요
-    </motion.p>
 
-    <div className="w-full overflow-x-auto scrollbar-hide pb-8">
-      <div
-        className="flex justify-start gap-8 px-8 min-w-max mx-auto"
-        style={{
-          transformStyle: "preserve-3d",
-          perspective: "1000px"
-        }}
-      >
-        {Array.from({ length: 7 }).map((_, index) => (
+        {showCookies && (
           <motion.div
-            key={index}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.2}
-            onDragEnd={(event, info) => {
-              if (info.offset.y < -100) {
-                setSelectedCard(index);
-                setShowConfirm(true);
-              }
-            }}
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: index * 0.1 }}
-            whileHover={{ y: -10 }}
-            whileDrag={{ scale: 1.1 }}
-            className="relative cursor-grab active:cursor-grabbing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <div className="relative">
+              <motion.p
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center text-xl text-white mb-12"
+              >
+                행운의 포춘쿠키를 선택해주세요
+              </motion.p>
+              <div className="flex gap-8">
+                {[0, 1, 2].map((index) => (
+                  <FortuneCookie
+                    key={index}
+                    isSelected={selectedCookie === index}
+                    onClick={() => {
+                      setSelectedCookie(index);
+                      setShowConfirm(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {showConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
           >
             <motion.div
-              className="relative w-48 h-72 rounded-xl overflow-hidden"
-              style={{
-                boxShadow: "0 0 20px rgba(255, 215, 0, 0.3)",
-                border: "1px solid rgba(255, 215, 0, 0.2)"
-              }}
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="glassmorphism rounded-2xl p-8 max-w-sm w-full mx-4"
             >
-              <img
-                src="/assets/tarocard_back.jpg"
-                alt="Tarot Card Back"
-                className="w-full h-full object-cover"
-              />
-              <motion.div
-                className="absolute inset-0"
-                animate={{
-                  boxShadow: [
-                    "0 0 20px rgba(255, 215, 0, 0.2)",
-                    "0 0 30px rgba(255, 215, 0, 0.4)",
-                    "0 0 20px rgba(255, 215, 0, 0.2)"
-                  ]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1, rotate: 360 }}
+                  className="w-20 h-20 mx-auto mb-4"
+                >
+                  <img
+                    src="/assets/fortune_cookie.png"
+                    alt="Selected Cookie"
+                    className="w-full h-full object-contain"
+                  />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-white mb-4">쿠키 선택</h3>
+                <p className="text-purple-200 mb-6">
+                  정말 이 쿠키를 선택하시겠습니까?
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    className="flex-1 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
+                  >
+                    다시 선택
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate('/result', {
+                        state: {
+                          selectedCookie: selectedCookie,
+                          userInfo: formData
+                        }
+                      });
+                    }}
+                    className="flex-1 py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors"
+                  >
+                    확인
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
-        ))}
+        )}
       </div>
-    </div>
-  </motion.div>
-)}
-
-      <Dialog
-        open={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        className="relative z-50"
-      >
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
-        <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="glassmorphism rounded-2xl p-8 max-w-sm w-full">
-            <Dialog.Title className="text-2xl font-bold text-white mb-4 text-center">
-              카드 선택 확인
-            </Dialog.Title>
-            <p className="text-purple-200 mb-8 text-center">
-              이 카드로 당신의 운세를 확인하시겠습니까?
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                className="py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
-                onClick={() => setShowConfirm(false)}
-              >
-                다시 선택
-              </button>
-              <button
-                className="py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors"
-                onClick={() => {
-                  navigate('/result', {
-                    state: {
-                      selectedCard: selectedCard,
-                      userInfo: formData
-                    }
-                  });
-                }}
-              >
-                확인
-              </button>
-            </div>
-          </Dialog.Panel>
-        </div>
-      </Dialog>
     </div>
   );
 };
