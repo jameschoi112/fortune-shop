@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Clover } from 'lucide-react';
 
 const SplashScreen = () => {
   return (
@@ -13,16 +14,17 @@ const SplashScreen = () => {
         <motion.div
           animate={{
             opacity: [1, 0.7, 1],
-            scale: [1, 1.1, 1]
+            scale: [1, 1.1, 1],
+            rotate: [0, 10, 0]
           }}
           transition={{
             duration: 2,
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="w-24 h-24 mb-6 mx-auto"
+          className="w-24 h-24 mb-6 mx-auto flex items-center justify-center"
         >
-          <span className="text-6xl">✨</span>
+          <Clover className="w-16 h-16 text-fuchsia-400" />
         </motion.div>
         <motion.h1
           initial={{ y: 20, opacity: 0 }}
