@@ -81,13 +81,7 @@ const Banner = ({ banners }) => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent" />
             <div className="relative z-10 h-full flex items-center p-6">
               <div className="text-left">
-                <motion.span
-                  initial={{ scale: 0.9 }}
-                  animate={{ scale: 1 }}
-                  className="inline-block text-4xl mb-2"
-                >
-                  ✨
-                </motion.span>
+
                 <h3 className="text-2xl font-bold text-white mb-1">{banner.title}</h3>
                 <p className="text-purple-200">{banner.description}</p>
               </div>
@@ -159,7 +153,7 @@ const Home = () => {
     },
     {
       title: "AI 점쟁이",
-      description: "무당 할머니에게 고민을 풀어보세요",
+      description: "무당 할머니에게 고민을 털어보세요",
       icon: GraduationCap,
       comingSoon: true,
       stats: { today: 73, total: 867 }
@@ -172,12 +166,12 @@ const Home = () => {
       description: "당신만의 특별한 운세를 확인해보세요"
     },
     {
-      title: "2024년 운세",
-      description: "새해를 맞아 특별한 운세를 준비했습니다"
+      title: "AI 점쟁이 할머니",
+      description: "무당 할머니에게 고민을 털어내보세요"
     },
     {
-      title: "특별한 이벤트",
-      description: "매일 찾아오는 행운의 시간"
+      title: "소빵재빵 날씨",
+      description: "AI가 알려주는 날씨 사이트"
     }
   ];
 
