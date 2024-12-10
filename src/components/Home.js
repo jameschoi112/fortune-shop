@@ -4,6 +4,7 @@ import { Sparkles, Heart, Coins, GraduationCap } from 'lucide-react';
 import MenuBar from './shared/MenuBar';
 import Sidebar from './shared/Sidebar';
 import Modal from './shared/Modal';
+import { isSameDay } from '../utils/dateCheck';
 
 const FortuneCard = ({ title, description, icon: Icon, onClick, stats }) => {
   return (
@@ -176,9 +177,22 @@ const Banner = ({ banners }) => {
 const Home = () => {
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
 
-  const handleNavigate = (path) => {
-    window.location.href = path;
+  const handleFortuneClick = () => {
+    const lastCheckTime = localStorage.getItem('lastFortuneCheck');
+
+    if (lastCheckTime) {
+      const lastCheck = new Date(parseInt(lastCheckTime));
+      const now = new Date();
+
+      if (isSameDay(lastCheck, now)) {
+        setShowDailyLimitModal(true);
+        return;
+      }
+    }
+
+    window.location.href = '/fortune';
   };
 
   const menuItems = [
@@ -256,7 +270,7 @@ const Home = () => {
                 if (item.comingSoon) {
                   setShowComingSoon(true);
                 } else {
-                  handleNavigate(item.route);
+                  handleFortuneClick();
                 }
               }}
             />
@@ -275,6 +289,33 @@ const Home = () => {
         >
           확인
         </button>
+      </Modal>
+
+      <Modal isOpen={showDailyLimitModal} onClose={() => setShowDailyLimitModal(false)}>
+        <div className="text-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1, rotate: 360 }}
+            className="w-20 h-20 mx-auto mb-4"
+          >
+            <img
+              src="/assets/fortune_cookie.png"
+              alt="Fortune Cookie"
+              className="w-full h-full object-contain"
+            />
+          </motion.div>
+          <h2 className="text-2xl font-bold text-white mb-4">하루 한 번만 가능해요</h2>
+          <p className="text-purple-200 mb-6">
+            오늘의 운세는 하루에 한 번만 <br/> 확인하실 수 있어요.<br/>
+            <br/> 내일 다시 만나요!
+          </p>
+          <button
+            className="w-full py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors"
+            onClick={() => setShowDailyLimitModal(false)}
+          >
+            확인
+          </button>
+        </div>
       </Modal>
     </div>
   );

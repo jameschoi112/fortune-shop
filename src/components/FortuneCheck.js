@@ -51,6 +51,9 @@ const FortuneCookie = ({ onClick, isSelected }) => (
 
 const FortuneCheck = () => {
   const navigate = useNavigate();
+  const [showIntro, setShowIntro] = useState(() => {
+    return localStorage.getItem('hideFortuneIntro') !== 'true';
+  });
   const [formData, setFormData] = useState({
     gender: '',
     calendar: 'solar',
@@ -140,32 +143,34 @@ const FortuneCheck = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-lg font-medium text-white">이름</label>
-              <input
-                required
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-6 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                placeholder="이름을 입력하세요"
-              />
+            <div className="space-y-4">
+              <div className="flex flex-col">
+                <label className="text-lg font-medium text-white mb-4">이름</label>
+                <input
+                  required
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-6 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                  placeholder="이름을 입력하세요"
+                />
+              </div>
             </div>
 
             <div className="space-y-4">
-              <div className="flex flex-col w-full"> {/* w-full 추가 */}
+              <div className="flex flex-col w-full">
                 <label className="text-lg font-medium text-white mb-4">생년월일</label>
                 <input
                   required
                   type="date"
                   value={formData.birthdate}
                   onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
-                  className="w-full px-6 py-5 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300 h-14 text-lg" // text-lg 추가
+                  className="w-full px-6 py-5 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300 h-14 text-lg"
                   placeholder="클릭하여 생년월일을 선택해주세요"
                   style={{
                     minHeight: '3.5rem',
                     lineHeight: '1.5',
-                    minWidth: '100%' // 최소 너비 설정
+                    minWidth: '100%'
                   }}
                 />
                 <p className="mt-2 text-purple-200 text-sm">클릭하여 생년월일을 선택해주세요</p>
@@ -180,6 +185,54 @@ const FortuneCheck = () => {
             </button>
           </form>
         </motion.div>
+
+        {showIntro && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="glassmorphism rounded-2xl p-8 max-w-md w-full mx-4"
+            >
+              <button
+                onClick={() => setShowIntro(false)}
+                className="absolute top-4 right-4 text-white/60 hover:text-white"
+              >
+                ✕
+              </button>
+              <div className="text-center">
+                <div className="w-64 h-64 mb-4 mx-auto overflow-hidden rounded-lg">
+                  <img
+                    src="/assets/popup_image.jpg"
+                    alt="Fortune Guide"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <p className="text-purple-200 mb-6">
+                  운세 확인을 위해 정보를 입력해주세요.<br/><br/>
+
+                  * 입력된 정보는 저장되지 않고 , <br/> 운세를 확인하는 용도로만 사용됩니다.
+                </p>
+                <label className="flex items-center justify-center space-x-3">
+                  <input
+                    type="checkbox"
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        localStorage.setItem('hideFortuneIntro', 'true');
+                      }
+                      setShowIntro(false);
+                    }}
+                    className="w-5 h-5 rounded border-purple-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className="text-purple-200">다시 보지 않기</span>
+                </label>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
 
         {showCookies && (
           <motion.div

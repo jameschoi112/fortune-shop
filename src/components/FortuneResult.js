@@ -35,17 +35,27 @@ const FortuneResult = () => {
     }
 
     const getFortune = async () => {
-      try {
-        const result = await generateFortune(location.state.userInfo);
-        setFortune(result);
-        setTimeout(() => {
-          setLoading(false);
-        }, 1500);
-      } catch (error) {
-        alert('운세 확인 중 오류가 발생했습니다.');
-        navigate('/');
-      }
-    };
+  try {
+    const result = await generateFortune(location.state.userInfo);
+
+
+    // 결과가 문자열이 아닌 경우 처리
+    if (typeof result !== 'string') {
+      setFortune(result.choices[0].message.content);
+    } else {
+      setFortune(result);
+    }
+
+    localStorage.setItem('lastFortuneCheck', Date.now().toString());
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  } catch (error) {
+
+    alert('운세 확인 중 오류가 발생했습니다.');
+    navigate('/');
+  }
+};
 
     getFortune();
   }, [location.state, navigate]);
@@ -58,7 +68,11 @@ const FortuneResult = () => {
   ];
 
   const getFortuneSection = (tab) => {
+
+
+
     const sections = fortune.split('\n\n');
+
     const section = sections.find(s => s.includes(tab));
     return section || '운세 정보를 불러오는 중입니다...';
   };
