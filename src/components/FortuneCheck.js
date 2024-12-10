@@ -152,7 +152,7 @@ const FortuneCheck = () => {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4">
               <label className="text-lg font-medium text-white">생년월일</label>
               <input
                 required

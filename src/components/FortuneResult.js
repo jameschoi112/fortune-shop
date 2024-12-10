@@ -1,262 +1,141 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, User, ArrowLeft } from 'lucide-react';
+import { Home, Star, Heart, DollarSign, GraduationCap } from 'lucide-react';
+import LoadingSpinner from './shared/LoadingSpinner';
+import { generateFortune } from '../services/openai';
+import { marked } from 'marked';
 
-const FortuneCookie = ({ onClick, isSelected }) => (
-  <motion.div
-    whileHover={{ scale: 1.1 }}
-    whileTap={{ scale: 0.9 }}
+const FortuneButton = ({ icon: Icon, label, isActive, onClick }) => (
+  <button
     onClick={onClick}
-    className="relative cursor-pointer"
+    className={`
+      flex items-center space-x-2 px-6 py-3 rounded-xl transition-all
+      ${isActive
+        ? 'bg-purple-600 text-white'
+        : 'bg-white/10 text-purple-200 hover:bg-white/20'}
+    `}
   >
-    <motion.div
-      animate={{
-        y: [0, -10, 0],
-        rotate: [0, 5, 0]
-      }}
-      transition={{
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut",
-        times: [0, 0.5, 1]
-      }}
-      className="w-32 h-32 relative"
-    >
-      <img
-        src="/assets/fortune_cookie.png"
-        alt="Fortune Cookie"
-        className="w-full h-full object-contain"
-      />
-      <motion.div
-        animate={{
-          opacity: [0.5, 1, 0.5],
-          scale: [1, 1.1, 1]
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className={`absolute inset-0 rounded-full ${
-          isSelected ? 'ring-4 ring-fuchsia-400' : ''
-        }`}
-        style={{
-          boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)"
-        }}
-      />
-    </motion.div>
-  </motion.div>
+    <Icon className="w-5 h-5" />
+    <span>{label}</span>
+  </button>
 );
 
-const FortuneCheck = () => {
+const FortuneResult = () => {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    gender: '',
-    calendar: 'solar',
-    name: '',
-    birthdate: ''
-  });
-  const [showCookies, setShowCookies] = useState(false);
-  const [selectedCookie, setSelectedCookie] = useState(null);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [fortune, setFortune] = useState('');
+  const [currentTab, setCurrentTab] = useState('총운');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setShowCookies(true);
+  useEffect(() => {
+    if (!location.state) {
+      navigate('/');
+      return;
+    }
+
+    const getFortune = async () => {
+      try {
+        const result = await generateFortune(location.state.userInfo);
+        setFortune(result);
+        setTimeout(() => {
+          setLoading(false);
+        }, 1500);
+      } catch (error) {
+        alert('운세 확인 중 오류가 발생했습니다.');
+        navigate('/');
+      }
+    };
+
+    getFortune();
+  }, [location.state, navigate]);
+
+  const tabs = [
+    { id: '총운', icon: Star },
+    { id: '애정운', icon: Heart },
+    { id: '금전운', icon: DollarSign },
+    { id: '학업운', icon: GraduationCap }
+  ];
+
+  const getFortuneSection = (tab) => {
+    const sections = fortune.split('\n\n');
+    const section = sections.find(s => s.includes(tab));
+    return section || '운세 정보를 불러오는 중입니다...';
   };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-4 right-4 z-50">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="p-3 bg-white/10 rounded-full text-white hover:bg-white/20"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <Home className="w-6 h-6" />
         </motion.button>
       </div>
 
-      <div className="relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-xl mx-auto"
-        >
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">운세 확인하기</h1>
-            <p className="text-lg text-purple-200">당신의 운세를 알아보세요</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="max-w-2xl mx-auto"
+      >
+        <div className="glassmorphism rounded-2xl overflow-hidden mb-8">
+          <img
+            src="/assets/result_fortune.jpg"
+            alt="Fortune Result"
+            className="w-full h-48 object-cover"
+          />
+          <div className="p-6 text-center">
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {location.state?.userInfo.name}님의 운세
+            </h1>
+            <p className="text-purple-200">
+              {new Date().toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </p>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="glassmorphism rounded-2xl p-8 space-y-8">
-            <div className="space-y-4">
-              <label className="text-lg font-medium text-white">성별</label>
-              <div className="grid grid-cols-2 gap-4">
-                {['male', 'female'].map((gender) => (
-                  <button
-                    key={gender}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, gender })}
-                    className={`
-                      p-4 rounded-xl flex items-center justify-center space-x-3
-                      transition-all duration-200
-                      ${formData.gender === gender
-                        ? 'bg-purple-600 ring-2 ring-purple-300'
-                        : 'bg-white/10 hover:bg-white/20'}
-                    `}
-                  >
-                    <User className="w-5 h-5" />
-                    <span>{gender === 'male' ? '남성' : '여성'}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <label className="text-lg font-medium text-white">음력/양력</label>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { value: 'solar', label: '양력' },
-                  { value: 'lunar', label: '음력' }
-                ].map((cal) => (
-                  <button
-                    key={cal.value}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, calendar: cal.value })}
-                    className={`
-                      p-4 rounded-xl flex items-center justify-center space-x-3
-                      transition-all duration-200
-                      ${formData.calendar === cal.value
-                        ? 'bg-purple-600 ring-2 ring-purple-300'
-                        : 'bg-white/10 hover:bg-white/20'}
-                    `}
-                  >
-                    <Calendar className="w-5 h-5" />
-                    <span>{cal.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-lg font-medium text-white">이름</label>
-              <input
-                required
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-6 py-4 rounded-xl bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                placeholder="이름을 입력하세요"
+        <div className="glassmorphism rounded-2xl p-8">
+          <div className="flex flex-wrap gap-3 mb-8 justify-center">
+            {tabs.map(({ id, icon }) => (
+              <FortuneButton
+                key={id}
+                icon={icon}
+                label={id}
+                isActive={currentTab === id}
+                onClick={() => setCurrentTab(id)}
               />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-lg font-medium text-white">생년월일</label>
-              <input
-                required
-                type="date"
-                value={formData.birthdate}
-                onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
-                className="w-full px-6 py-4 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+            ))}
+          </div>
+          <motion.div
+            key={currentTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="prose prose-invert prose-lg max-w-none"
+          >
+            {getFortuneSection(currentTab).split('\n').map((line, i) => (
+              <div
+                key={i}
+                className="mb-4 leading-relaxed"
+                dangerouslySetInnerHTML={{
+                  __html: marked(line)
+                }}
               />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-lg hover:opacity-90 transition-opacity"
-            >
-              운세 확인하기
-            </button>
-          </form>
-        </motion.div>
-
-        {showCookies && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          >
-            <div className="relative">
-              <motion.p
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center text-xl text-white mb-12"
-              >
-                행운의 포춘쿠키를 선택해주세요
-              </motion.p>
-              <div className="flex gap-8">
-                {[0, 1, 2].map((index) => (
-                  <FortuneCookie
-                    key={index}
-                    isSelected={selectedCookie === index}
-                    onClick={() => {
-                      setSelectedCookie(index);
-                      setShowConfirm(true);
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+            ))}
           </motion.div>
-        )}
-
-        {showConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="glassmorphism rounded-2xl p-8 max-w-sm w-full mx-4"
-            >
-              <div className="text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1, rotate: 360 }}
-                  className="w-20 h-20 mx-auto mb-4"
-                >
-                  <img
-                    src="/assets/fortune_cookie.png"
-                    alt="Selected Cookie"
-                    className="w-full h-full object-contain"
-                  />
-                </motion.div>
-                <h3 className="text-2xl font-bold text-white mb-4">포춘쿠키 선택 확인</h3>
-                <p className="text-purple-200 mb-6">
-                  이 쿠키를 선택하시겠습니까?
-                </p>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setShowConfirm(false)}
-                    className="flex-1 py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
-                  >
-                    다시 선택
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate('/result', {
-                        state: {
-                          selectedCookie: selectedCookie,
-                          userInfo: formData
-                        }
-                      });
-                    }}
-                    className="flex-1 py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors"
-                  >
-                    확인
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };
 
-export default FortuneCheck;
+export default FortuneResult;
