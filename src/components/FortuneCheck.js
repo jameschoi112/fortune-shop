@@ -153,17 +153,24 @@ const FortuneCheck = () => {
             </div>
 
             <div className="space-y-4">
-  <div className="flex flex-col"> {/* flex-col 추가로 세로 정렬 강제 */}
-    <label className="text-lg font-medium text-white mb-4">생년월일</label>
-    <input
-      required
-      type="date"
-      value={formData.birthdate}
-      onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
-      className="w-full px-6 py-4 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
-    />
-  </div>
-</div>
+              <div className="flex flex-col w-full"> {/* w-full 추가 */}
+                <label className="text-lg font-medium text-white mb-4">생년월일</label>
+                <input
+                  required
+                  type="date"
+                  value={formData.birthdate}
+                  onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
+                  className="w-full px-6 py-5 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300 h-14 text-lg" // text-lg 추가
+                  placeholder="클릭하여 생년월일을 선택해주세요"
+                  style={{
+                    minHeight: '3.5rem',
+                    lineHeight: '1.5',
+                    minWidth: '100%' // 최소 너비 설정
+                  }}
+                />
+                <p className="mt-2 text-purple-200 text-sm">클릭하여 생년월일을 선택해주세요</p>
+              </div>
+            </div>
 
             <button
               type="submit"
