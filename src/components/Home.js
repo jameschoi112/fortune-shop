@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Heart, Coins, GraduationCap } from 'lucide-react';
 import MenuBar from './shared/MenuBar';
 import Sidebar from './shared/Sidebar';
@@ -40,13 +40,58 @@ const FortuneCard = ({ title, description, icon: Icon, onClick, stats }) => {
 
 const Banner = ({ banners }) => {
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const autoPlayRef = useRef(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
+  const minSwipeDistance = 50;
+
+  const stopAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+    }
+  }, []);
+
+  const startAutoPlay = useCallback(() => {
+    stopAutoPlay();
+    autoPlayRef.current = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, 10000);
-    return () => clearInterval(timer);
-  }, [banners.length]);
+  }, [stopAutoPlay, banners.length]);
+
+  useEffect(() => {
+    startAutoPlay();
+    return () => stopAutoPlay();
+  }, [startAutoPlay, stopAutoPlay]);
+
+  const onTouchStart = (e) => {
+    stopAutoPlay();
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      startAutoPlay();
+      return;
+    }
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    } else if (isRightSwipe) {
+      setCurrentBanner((prev) => (prev - 1 + banners.length) % banners.length);
+    }
+
+    startAutoPlay();
+  };
 
   const handleBannerClick = () => {
     if (currentBanner === 2) {
@@ -58,36 +103,42 @@ const Banner = ({ banners }) => {
     <div className="glassmorphism rounded-2xl overflow-hidden relative">
       <div
         className="relative w-full h-36 cursor-pointer"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
         onClick={handleBannerClick}
       >
-        {banners.map((banner, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{
-              opacity: currentBanner === index ? 1 : 0,
-              x: currentBanner === index ? 0 : 20
-            }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0"
-          >
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url('/assets/banner_${index + 1}.jpg')`,
-                opacity: 0.4
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent" />
-            <div className="relative z-10 h-full flex items-center p-6">
-              <div className="text-left">
-
-                <h3 className="text-2xl font-bold text-white mb-1">{banner.title}</h3>
-                <p className="text-purple-200">{banner.description}</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+        <AnimatePresence initial={false}>
+          {banners.map((banner, index) => (
+            index === currentBanner && (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 300 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -300 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="absolute inset-0"
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url('/assets/banner_${index + 1}.jpg')`,
+                    opacity: 0.4
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent" />
+                <div className="relative z-10 h-full flex items-center p-6">
+                  <div className="text-left">
+                    <h3 className="text-2xl font-bold text-white mb-1">
+                      {banner.title}
+                    </h3>
+                    <p className="text-purple-200">{banner.description}</p>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          ))}
+        </AnimatePresence>
       </div>
 
       <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2">
@@ -97,6 +148,7 @@ const Banner = ({ banners }) => {
             onClick={(e) => {
               e.stopPropagation();
               setCurrentBanner(index);
+              startAutoPlay();
             }}
             className={`w-2 h-2 rounded-full transition-all duration-300
               ${currentBanner === index
