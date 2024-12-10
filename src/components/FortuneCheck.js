@@ -152,8 +152,7 @@ const FortuneCheck = () => {
               />
             </div>
 
-            <div className="space-y-4">
-             <div className="flex flex-col">
+            <div className="space-y-2">
               <label className="text-lg font-medium text-white">생년월일</label>
               <input
                 required
@@ -162,7 +161,6 @@ const FortuneCheck = () => {
                 onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
                 className="w-full px-6 py-4 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
               />
-              </div>
             </div>
 
             <button
