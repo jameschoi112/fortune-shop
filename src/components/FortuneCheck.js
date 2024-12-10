@@ -152,16 +152,18 @@ const FortuneCheck = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-lg font-medium text-white">생년월일</label>
-              <input
-                required
-                type="date"
-                value={formData.birthdate}
-                onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
-                className="w-full px-6 py-4 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
-              />
-            </div>
+            <div className="space-y-4">
+  <div className="flex flex-col"> {/* flex-col 추가로 세로 정렬 강제 */}
+    <label className="text-lg font-medium text-white mb-4">생년월일</label>
+    <input
+      required
+      type="date"
+      value={formData.birthdate}
+      onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
+      className="w-full px-6 py-4 rounded-xl bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-300"
+    />
+  </div>
+</div>
 
             <button
               type="submit"
