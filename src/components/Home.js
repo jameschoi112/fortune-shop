@@ -5,6 +5,7 @@ import MenuBar from './shared/MenuBar';
 import Sidebar from './shared/Sidebar';
 import Modal from './shared/Modal';
 import { isSameDay } from '../utils/dateCheck';
+import { useNavigate } from 'react-router-dom';
 
 const FortuneCard = ({ title, description, icon: Icon, onClick, stats }) => {
   return (
@@ -130,9 +131,7 @@ const Banner = ({ banners }) => {
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-transparent" />
                 <div className="relative z-10 h-full flex items-center p-6">
                   <div className="text-left">
-                    <h3 className="text-2xl font-bold text-white mb-1">
-                      {banner.title}
-                    </h3>
+                    <h3 className="text-2xl font-bold text-white mb-1">{banner.title}</h3>
                     <p className="text-purple-200">{banner.description}</p>
                   </div>
                 </div>
@@ -176,9 +175,9 @@ const Banner = ({ banners }) => {
 
 const Home = () => {
   const [showComingSoon, setShowComingSoon] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showDailyLimitModal, setShowDailyLimitModal] = useState(false);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
   const handleFortuneClick = () => {
     const lastCheckTime = localStorage.getItem('lastFortuneCheck');
 
@@ -192,7 +191,15 @@ const Home = () => {
       }
     }
 
-    window.location.href = '/fortune';
+    navigate('/fortune');
+  };
+
+  const viewPreviousResult = () => {
+    const savedResult = localStorage.getItem('lastFortuneResult');
+    if (savedResult) {
+      const result = JSON.parse(savedResult);
+      navigate('/result', { state: result });
+    }
   };
 
   const menuItems = [
@@ -307,14 +314,22 @@ const Home = () => {
           <h2 className="text-2xl font-bold text-white mb-4">하루 한 번만 가능해요</h2>
           <p className="text-purple-200 mb-6">
             오늘의 운세는 하루에 한 번만 <br/> 확인하실 수 있어요.<br/>
-            <br/> 내일 다시 만나요!
+            <br/>내일 다시 만나요!
           </p>
-          <button
-            className="w-full py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors"
-            onClick={() => setShowDailyLimitModal(false)}
-          >
-            확인
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              className="w-full py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors"
+              onClick={viewPreviousResult}
+            >
+              이전 결과 보기
+            </button>
+            <button
+              className="w-full py-3 rounded-xl bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
+              onClick={() => setShowDailyLimitModal(false)}
+            >
+              닫기
+            </button>
+          </div>
         </div>
       </Modal>
     </div>
